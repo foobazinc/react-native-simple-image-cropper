@@ -202,6 +202,7 @@ class ImageCropper extends PureComponent {
         imageHeight={fittedSize.h}
         minScale={minScale}
         onMove={this.handleMove}
+				style={{ overflow: 'visible' }}
       >
         <Image style={{ width: fittedSize.w, height: fittedSize.h }} source={imageSrc} />
       </ImageZoom>
