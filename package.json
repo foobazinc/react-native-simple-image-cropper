@@ -38,6 +38,6 @@
   },
   "dependencies": {
     "@react-native-community/image-editor": "*",
-    "react-native-image-pan-zoom": "*"
+    "react-native-image-pan-zoom": "^2.1.12"
   }
 }

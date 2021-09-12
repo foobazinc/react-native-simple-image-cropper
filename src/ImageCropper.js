@@ -1,17 +1,17 @@
-import React, { PureComponent } from 'react';
-import { Image, Dimensions } from 'react-native';
-import PropTypes from 'prop-types';
-import ImageZoom from 'react-native-image-pan-zoom';
-import ImageEditor from '@react-native-community/image-editor';
-import { getPercentFromNumber, getPercentDiffNumberFromNumber } from './helpers/percentCalculator';
+import React, { PureComponent } from 'react'
+import { Image, Dimensions } from 'react-native'
+import PropTypes from 'prop-types'
+import ImageZoom from 'react-native-image-pan-zoom'
+import ImageEditor from '@react-native-community/image-editor'
+import { getPercentFromNumber, getPercentDiffNumberFromNumber } from './helpers/percentCalculator'
 
-const window = Dimensions.get('window');
-const w = window.width;
+const window = Dimensions.get('window')
+const w = window.width
 
 class ImageCropper extends PureComponent {
   constructor() {
-    super();
-    this.imageZoom = React.createRef();
+    super()
+    this.imageZoom = React.createRef()
   }
 
   state = {
@@ -22,68 +22,59 @@ class ImageCropper extends PureComponent {
     minScale: 1.01,
     adjustedHeight: 0,
     loading: true,
-  };
+  }
 
   static propTypes = {
     imageUri: PropTypes.string.isRequired,
     setCropperParams: PropTypes.func.isRequired,
     cropAreaWidth: PropTypes.number,
     cropAreaHeight: PropTypes.number,
-  };
+  }
 
   static defaultProps = {
     cropAreaWidth: w,
     cropAreaHeight: w,
-  };
+  }
 
   static crop = params => {
-    const {
-      imageUri,
-      cropSize,
-      positionX,
-      positionY,
-      cropAreaSize,
-      srcSize,
-      fittedSize,
-      scale,
-    } = params;
+    const { imageUri, cropSize, positionX, positionY, cropAreaSize, srcSize, fittedSize, scale } = params
 
     const offset = {
       x: 0,
       y: 0,
-    };
+    }
 
-    const cropAreaW = cropAreaSize ? cropAreaSize.width : w;
-    const cropAreaH = cropAreaSize ? cropAreaSize.height : w;
+    const cropAreaW = cropAreaSize ? cropAreaSize.width : w
+    const cropAreaH = cropAreaSize ? cropAreaSize.height : w
 
-    const wScale = cropAreaW / scale;
-    const hScale = cropAreaH / scale;
+    const wScale = cropAreaW / scale
+    const hScale = cropAreaH / scale
 
-    const percentCropperAreaW = getPercentDiffNumberFromNumber(wScale, fittedSize.w);
-    const percentRestW = 100 - percentCropperAreaW;
-    const hiddenAreaW = getPercentFromNumber(percentRestW, fittedSize.w);
+    const percentCropperAreaW = getPercentDiffNumberFromNumber(wScale, fittedSize.w)
+    const percentRestW = 100 - percentCropperAreaW
+    const hiddenAreaW = getPercentFromNumber(percentRestW, fittedSize.w)
 
-    const percentCropperAreaH = getPercentDiffNumberFromNumber(hScale, fittedSize.h);
-    const percentRestH = 100 - percentCropperAreaH;
-    const hiddenAreaH = getPercentFromNumber(percentRestH, fittedSize.h);
+    const percentCropperAreaH = getPercentDiffNumberFromNumber(hScale, fittedSize.h)
+    const percentRestH = 100 - percentCropperAreaH
+    const hiddenAreaH = getPercentFromNumber(percentRestH, fittedSize.h)
 
-    const x = hiddenAreaW / 2 - positionX;
-    const y = hiddenAreaH / 2 - positionY;
+    const x = hiddenAreaW / 2 - positionX
+    const y = hiddenAreaH / 2 - positionY
 
-    offset.x = x <= 0 ? 0 : x;
-    offset.y = y <= 0 ? 0 : y;
+    offset.x = x <= 0 ? 0 : x
+    offset.y = y <= 0 ? 0 : y
 
-    const srcPercentCropperAreaW = getPercentDiffNumberFromNumber(offset.x, fittedSize.w);
-    const srcPercentCropperAreaH = getPercentDiffNumberFromNumber(offset.y, fittedSize.h);
+    const srcPercentCropperAreaW = getPercentDiffNumberFromNumber(offset.x, fittedSize.w)
+    const srcPercentCropperAreaH = getPercentDiffNumberFromNumber(offset.y, fittedSize.h)
 
-    const offsetW = getPercentFromNumber(srcPercentCropperAreaW, srcSize.w);
-    const offsetH = getPercentFromNumber(srcPercentCropperAreaH, srcSize.h);
+    const offsetW = getPercentFromNumber(srcPercentCropperAreaW, srcSize.w)
+    const offsetH = getPercentFromNumber(srcPercentCropperAreaH, srcSize.h)
 
-    const sizeW = getPercentFromNumber(percentCropperAreaW, srcSize.w);
-    const sizeH = getPercentFromNumber(percentCropperAreaH, srcSize.h);
+    const sizeW = getPercentFromNumber(percentCropperAreaW, srcSize.w)
+    const sizeH = getPercentFromNumber(percentCropperAreaH, srcSize.h)
 
-    offset.x = offsetW;
-    offset.y = offsetH;
+    offset.x = offsetW
+    offset.y = offsetH
 
     const cropData = {
       offset,
@@ -95,62 +86,62 @@ class ImageCropper extends PureComponent {
         width: cropSize.width,
         height: cropSize.height,
       },
-    };
+    }
 
     return new Promise((resolve, reject) =>
       ImageEditor.cropImage(imageUri, cropData)
         .then(resolve)
-        .catch(reject),
-    );
-  };
+        .catch(reject)
+    )
+  }
 
   componentDidMount() {
-    this.init();
+    this.init()
   }
 
   componentDidUpdate(prevProps) {
-    const { imageUri } = this.props;
+    const { imageUri } = this.props
     if (imageUri && prevProps.imageUri !== imageUri) {
-      this.init();
+      this.init()
     }
   }
 
   init = () => {
-    const { imageUri } = this.props;
+    const { imageUri } = this.props
 
     Image.getSize(imageUri, (width, height) => {
-      const { setCropperParams, cropAreaWidth, cropAreaHeight } = this.props;
+      const { setCropperParams, cropAreaWidth, cropAreaHeight } = this.props
 
-      const srcSize = { w: width, h: height };
-      const fittedSize = { w: 0, h: 0 };
-      let scale = 1.0001;
+      const srcSize = { w: width, h: height }
+      const fittedSize = { w: 0, h: 0 }
+      let scale = 1.0001
 
       if (width > height) {
-        const ratio = w / height;
-        fittedSize.w = width * ratio;
-        fittedSize.h = w;
+        const ratio = w / height
+        fittedSize.w = width * ratio
+        fittedSize.h = w
       } else if (width < height) {
-        const ratio = w / width;
-        fittedSize.w = w;
-        fittedSize.h = height * ratio;
+        const ratio = w / width
+        fittedSize.w = w
+        fittedSize.h = height * ratio
       } else if (width === height) {
-        fittedSize.w = w;
-        fittedSize.h = w;
+        fittedSize.w = w
+        fittedSize.h = w
       }
 
       if (cropAreaWidth < cropAreaHeight || cropAreaWidth === cropAreaHeight) {
         if (width < height) {
           if (fittedSize.h < cropAreaHeight) {
-            scale = Math.ceil((cropAreaHeight / fittedSize.h) * 10) / 10 + 0.0001;
+            scale = Math.ceil((cropAreaHeight / fittedSize.h) * 10) / 10 + 0.0001
           } else {
-            scale = Math.ceil((cropAreaWidth / fittedSize.w) * 10) / 10 + 0.0001;
+            scale = Math.ceil((cropAreaWidth / fittedSize.w) * 10) / 10 + 0.0001
           }
         } else {
-          scale = Math.ceil((cropAreaHeight / fittedSize.h) * 10) / 10 + 0.0001;
+          scale = Math.ceil((cropAreaHeight / fittedSize.h) * 10) / 10 + 0.0001
         }
       }
 
-      scale = scale < 1 ? 1.0001 : scale;
+      scale = scale < 1 ? 1.0001 : scale
 
       this.setState(
         prevState => ({
@@ -166,15 +157,15 @@ class ImageCropper extends PureComponent {
             y: 0,
             scale,
             duration: 0,
-          });
-          setCropperParams(this.state);
-        },
-      );
-    });
-  };
+          })
+          setCropperParams(this.state)
+        }
+      )
+    })
+  }
 
   handleMove = ({ positionX, positionY, scale }) => {
-    const { setCropperParams } = this.props;
+    const { setCropperParams } = this.props
 
     this.setState(
       prevState => ({
@@ -183,14 +174,14 @@ class ImageCropper extends PureComponent {
         positionY,
         scale,
       }),
-      () => setCropperParams(this.state),
-    );
-  };
+      () => setCropperParams(this.state)
+    )
+  }
 
   render() {
-    const { loading, fittedSize, minScale } = this.state;
-    const { imageUri, cropAreaWidth, cropAreaHeight, ...restProps } = this.props;
-    const imageSrc = { uri: imageUri };
+    const { loading, fittedSize, minScale } = this.state
+    const { imageUri, cropAreaWidth, cropAreaHeight, ...restProps } = this.props
+    const imageSrc = { uri: imageUri }
 
     return !loading ? (
       <ImageZoom
@@ -202,12 +193,12 @@ class ImageCropper extends PureComponent {
         imageHeight={fittedSize.h}
         minScale={minScale}
         onMove={this.handleMove}
-				style={{ overflow: 'visible' }}
+        style={{ overflow: 'visible' }}
       >
         <Image style={{ width: fittedSize.w, height: fittedSize.h }} source={imageSrc} />
       </ImageZoom>
-    ) : null;
+    ) : null
   }
 }
 
-export default ImageCropper;
+export default ImageCropper
