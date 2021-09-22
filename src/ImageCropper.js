@@ -36,7 +36,7 @@ class ImageCropper extends PureComponent {
     cropAreaHeight: w,
   }
 
-  static crop = params => {
+  static crop = (params) => {
     const { imageUri, cropSize, positionX, positionY, cropAreaSize, srcSize, fittedSize, scale } = params
 
     const offset = {
@@ -88,11 +88,12 @@ class ImageCropper extends PureComponent {
       },
     }
 
-    return new Promise((resolve, reject) =>
-      ImageEditor.cropImage(imageUri, cropData)
-        .then(resolve)
-        .catch(reject)
-    )
+    return {
+      originX: offset.x,
+      originY: offset.y,
+      width: sizeW,
+      height: sizeH,
+    }
   }
 
   componentDidMount() {
@@ -144,7 +145,7 @@ class ImageCropper extends PureComponent {
       scale = scale < 1 ? 1.0001 : scale
 
       this.setState(
-        prevState => ({
+        (prevState) => ({
           ...prevState,
           srcSize,
           fittedSize,
@@ -168,7 +169,7 @@ class ImageCropper extends PureComponent {
     const { setCropperParams } = this.props
 
     this.setState(
-      prevState => ({
+      (prevState) => ({
         ...prevState,
         positionX,
         positionY,
